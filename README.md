@@ -1,9 +1,10 @@
 ```
-cd ./copy_fail
+id
 
-chmod +x *.sh
+cd ./copy_fail && ./chmod +x *.sh && ./compile.sh
+# then:
+./run.sh
 
-compile.sh
+id
 
-run.sh
 ```
